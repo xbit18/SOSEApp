@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">SOSEApp</string>
+    <string-array name="choices">
+        <item>Weather</item>
+        <item>Bets</item>
+    </string-array>
 </resources>
