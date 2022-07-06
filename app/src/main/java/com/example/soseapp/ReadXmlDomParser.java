@@ -19,13 +19,9 @@ public class ReadXmlDomParser {
 
     public static ArrayList<MatchWithWeather> parseMatchWithWeather(Document doc) {
 
-        System.out.println("Root Element :" + doc.getDocumentElement().getNodeName());
-        System.out.println("------");
-
         // get <staff>
         NodeList matchesList = doc.getElementsByTagName("MatchWithWeather");
         ArrayList<MatchWithWeather> matches = new ArrayList<>();
-        //System.out.println(matchesList.item(0).getChildNodes().item(0).getTextContent());
         for (int temp = 0; temp < matchesList.getLength(); temp++) {
 
             Node node = matchesList.item(temp);
@@ -35,7 +31,6 @@ public class ReadXmlDomParser {
                 Element element = (Element) node;
 
                 String coordinates = element.getChildNodes().item(0).getTextContent();
-                //System.out.println("Coordinates: " + coordinates);
                 Element matchNode = (Element) element.getChildNodes().item(1);
                 int localTeamID = Integer.parseInt(matchNode.getChildNodes().item(1).getChildNodes().item(0).getTextContent());
                 String localTeamName = matchNode.getChildNodes().item(1).getChildNodes().item(1).getTextContent();
@@ -47,7 +42,6 @@ public class ReadXmlDomParser {
                 String city = weatherNode.getChildNodes().item(0).getTextContent();
                 float temperature = Float.parseFloat(weatherNode.getChildNodes().item(1).getTextContent());
                 String weather = weatherNode.getChildNodes().item(2).getTextContent();
-                System.out.println(weather);
                 Team localTeam = new Team(localTeamID, localTeamName);
                 Team visitorsTeam = new Team(visitorTeamID, visitorTeamName);
                 MatchWithWeather match = new MatchWithWeather(localTeam,visitorsTeam,localTeamScore,visitorTeamScore,coordinates,city,temperature,weather);
@@ -59,13 +53,9 @@ public class ReadXmlDomParser {
     }
     public static ArrayList<MatchWithBet> parseMatchWithBet(Document doc) {
 
-        System.out.println("Root Element :" + doc.getDocumentElement().getNodeName());
-        System.out.println("------");
-
         // get <staff>
         NodeList matchesList = doc.getElementsByTagName("MatchWithBet");
         ArrayList<MatchWithBet> matches = new ArrayList<>();
-        //System.out.println(matchesList.item(0).getChildNodes().item(0).getTextContent());
         for (int temp = 0; temp < matchesList.getLength(); temp++) {
 
             Node node = matchesList.item(temp);
@@ -73,12 +63,10 @@ public class ReadXmlDomParser {
             if (node.getNodeType() == Node.ELEMENT_NODE) {
 
                 Element element = (Element) node;
-                //System.out.println("Coordinates: " + coordinates);
                 Element betNode = (Element) element.getChildNodes().item(0);
                 double localTeamQuote = Double.parseDouble(betNode.getChildNodes().item(0).getTextContent());
                 double visitorTeamQuote = Double.parseDouble(betNode.getChildNodes().item(2).getTextContent());
                 double tieQuote = Double.parseDouble(betNode.getChildNodes().item(1).getTextContent());
-                System.out.println(tieQuote);
                 Element matchNode = (Element) element.getChildNodes().item(1);
                 String coordinates = matchNode.getChildNodes().item(0).getTextContent();
                 int localTeamID = Integer.parseInt(matchNode.getChildNodes().item(1).getChildNodes().item(0).getTextContent());

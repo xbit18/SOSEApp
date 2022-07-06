@@ -1,6 +1,7 @@
 package com.example.soseapp;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
 import android.content.Context;
@@ -22,6 +23,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -49,53 +51,48 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
-    public static final String EXTRA_MESSAGE = "com.example.soseapp.MESSAGE";
-    /**
-     *  Making async http request
-     *  */
     private static AsyncHttpClient client = new AsyncHttpClient();
     ArrayList<MatchWithWeather> matchesWithWeather = new ArrayList<>();
     ArrayList<MatchWithBet> matchesWithBets = new ArrayList<>();
     LinearLayout linearLayout;
+    ConstraintLayout progress;
     Context context = this;
+    static int idCounter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        /** normal setup operations */
+
+        /**
+         * normal setup operations
+         */
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         linearLayout = findViewById(R.id.mainLayout);
-        Spinner spinner = (Spinner) findViewById(R.id.spinner2);
+        progress = findViewById(R.id.loadingConstraint);
+
+        /**
+         * Setup of spinner element on top of page
+         */
+        Spinner spinner = findViewById(R.id.spinner2);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.choices, R.layout.spinner_item);
-// Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-// Apply the adapter to the spinner
         spinner.setAdapter(adapter);
-        //getMatchesWithWeather(context);
         spinner.setOnItemSelectedListener(this);
-        /** Creation of toggle button and onClickListener */
-        /*ToggleButton b = new ToggleButton(context);
-        b.setTextOn("Check Odds");
-        b.setTextOff("Check Weather");
-        b.setChecked(true);
-        b.setHighlightColor(Color.RED);
-        linearLayout.addView(b);
-        b.setOnClickListener(v -> {
-            if(b.isChecked()){
-                linearLayout.removeViews(1,4);
-                getMatchesWithWeather(context);
-            } else {
-                linearLayout.removeViews(1,4);
-                getMatchesWithBet(context);
-            }
-        });*/
     }
 
     public void getMatchesWithWeather(Context context){
-        client.get("http://192.168.1.152:8083/cities/get", new AsyncHttpResponseHandler() {
+        /**
+         * Making request to server
+         */
+        client.get(context,"http://192.168.1.152:8083/cities/get", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                ConstraintLayout loading = findViewById(R.id.loadingConstraint);
+                int children = linearLayout.getChildCount();
+                if(children>1){
+                    linearLayout.removeView(loading);
+                }
                 try {
                     String data = new String(responseBody);
                     /**
@@ -108,54 +105,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     /**
                      * Dynamically creating buttons for every match
                      */
-                    int idCounter = 0;
                     for (MatchWithWeather m : matchesWithWeather) {
-                        try {
-                            LinearLayout linLayout = new LinearLayout(context);
-                            linLayout.setId(idCounter);
-                            ContextThemeWrapper newContext = new ContextThemeWrapper(context, androidx.appcompat.R.style.Widget_AppCompat_Button_Colored);
-                            Button btnTag = new Button(newContext);
-                            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                            btnTag.setLayoutParams(params);
-                            String buttonText = m.getLocalTeam().getName() +
-                                    " " + m.getLocalTeamScore() +
-                                    " - " + m.getVisitorTeamScore() +
-                                    " " + m.getVisitorTeam().getName() +
-                                    "\n " + m.getCity() + " - " + m.getWeather() + ", " + m.getTemperature() + "°C";
-                            btnTag.setText(buttonText);
-                            btnTag.setId(idCounter);
-                            btnTag.setLineSpacing(50, 1);
-
-                            String imgName = m.getWeather().toLowerCase().replace(" ", "");
-                            Uri uri = Uri.parse("android.resource://com.example.soseapp/drawable/" + imgName);
-                            Drawable resizableImg = null;
-                            try {
-                                InputStream inputStream = getContentResolver().openInputStream(uri);
-                                Drawable myImage = Drawable.createFromStream(inputStream, uri.toString());
-                                Bitmap bitmap = ((BitmapDrawable) myImage).getBitmap();
-                                resizableImg = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 150, 150, true));
-                            } catch (FileNotFoundException e) {
-                                e.printStackTrace();
-                            }
-                            ViewGroup.LayoutParams layoutParams = linearLayout.getLayoutParams();
-                            btnTag.setCompoundDrawablesWithIntrinsicBounds(null, null, resizableImg, null);
-                            btnTag.setPadding(50, 80, 50, 80);
-                            btnTag.setOnClickListener(new View.OnClickListener() {
-                                public void onClick(View v) {
-                                    openMatchWithWeather(m);
-                                }
-                            });
-                            idCounter++;
-
-                            //btnTag.setInsetBottom(2);
-                            //btnTag.setInsetTop(0);
-                            //btnTag.setCornerRadius(0);
-                            linLayout.addView(btnTag);
-                            linearLayout.addView(linLayout);
-                            //linLayout.setBackgroundColor(Color.BLACK);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        Button button = createButtonWithWeather(m);
+                        linearLayout.addView(button);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -169,16 +121,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                System.out.println("FAIL");
-                String resp = new String(responseBody);
-                System.out.println(resp);
+                ProgressBar progress = findViewById(R.id.progressBar2);
+                ConstraintLayout loading = findViewById(R.id.loadingConstraint);
+                loading.removeView(progress);
+                TextView errorMessage = findViewById(R.id.textView2);
+                errorMessage.setText("Sorry, something went wrong. Try again later!");
             }
-        });
+        }).setTag("request");
     }
     public void getMatchesWithBet(Context context){
-        client.get("http://192.168.1.152:8084/matches-with-bets/get", new AsyncHttpResponseHandler() {
+        client.get(context,"http://192.168.1.152:8084/matches-with-bets/get", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                int children = linearLayout.getChildCount();
+                if(children>1){
+                    linearLayout.removeView(progress);
+                }
                 try {
                     String data = new String(responseBody);
                     /**
@@ -193,35 +151,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                      */
                     int idCounter = 0;
                     for (MatchWithBet m : matchesWithBets) {
-                        try {
-                            LinearLayout linLayout = new LinearLayout(context);
-                            linLayout.setId(idCounter);
-                            Button btnTag = new Button(context);
-                            btnTag.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                            DecimalFormat dfor = new DecimalFormat("#.##");
-                            dfor.setRoundingMode(RoundingMode.DOWN);
-                            String formattedlocalTeamQuote = dfor.format(m.getLocalTeamQuote());
-                            String formattedvisitorTeamQuote = dfor.format(m.getVisitorTeamQuote());
-                            String buttonText = m.getLocalTeam().getName() +
-                                    " " + m.getLocalTeamScore() +
-                                    " - " + m.getVisitorTeamScore() +
-                                    " " + m.getVisitorTeam().getName() +
-                                    "\n Home Team: " + formattedlocalTeamQuote + " - Away Team: " + formattedvisitorTeamQuote;
-                            btnTag.setText(buttonText);
-                            btnTag.setId(idCounter);
-                            btnTag.setLineSpacing(50, 1);
-                            btnTag.setPadding(50, 80, 50, 80);
-                            idCounter++;
-                            btnTag.setOnClickListener(new View.OnClickListener() {
-                                public void onClick(View v) {
-                                    openMatchWithBet(m);
-                                }
-                            });
-                            linLayout.addView(btnTag);
-                            linearLayout.addView(linLayout);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        Button button = createButtonWithBet(m);
+                        linearLayout.addView(button);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -235,11 +166,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                System.out.println("FAIL");
-                //String resp = new String(responseBody);
-                //System.out.println(resp);
+                ProgressBar progress = findViewById(R.id.progressBar2);
+                ConstraintLayout loading = findViewById(R.id.loadingConstraint);
+                loading.removeView(progress);
+                TextView errorMessage = findViewById(R.id.textView2);
+                errorMessage.setText("Sorry, something went wrong. Try again later!");
             }
-        });
+        }).setTag("request");
     }
 
     public void openMatchWithWeather(MatchWithWeather m) {
@@ -248,11 +181,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         String weatherDets = m.getWeather() + ", " + m.getTemperature() + "°C";
         String weatherCity = m.getCity();
         String coordinates = m.getCoordinates();
+        String imgName = m.getWeather().toLowerCase().replace(" ", "");
         intent.putExtra("Gamedets",gameDets);
         intent.putExtra("Weatherdets",weatherDets);
         intent.putExtra("Weathercity", weatherCity);
         intent.putExtra("Coordinates",coordinates);
-        String imgName = m.getWeather().toLowerCase().replace(" ", "");
         intent.putExtra("imgPath", imgName);
         startActivity(intent);
     }
@@ -261,12 +194,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Intent intent = new Intent(this, BetsMatch.class);
         String gameDets = m.getLocalTeam().getName() + " " + m.getLocalTeamScore() + " - " + m.getVisitorTeamScore() + "  " + m.getVisitorTeam().getName();
         String coordinates = m.getCoordinates();
-        intent.putExtra("Gamedets",gameDets);
         DecimalFormat dfor = new DecimalFormat("#.##");
         dfor.setRoundingMode(RoundingMode.DOWN);
         String formattedlocalTeamQuote = dfor.format(m.getLocalTeamQuote());
         String formattedvisitorTeamQuote = dfor.format(m.getVisitorTeamQuote());
         String formattedtieQuote = dfor.format(m.getTieQuote());
+        intent.putExtra("Gamedets",gameDets);
         intent.putExtra("localQuote",formattedlocalTeamQuote);
         intent.putExtra("tieQuote",formattedtieQuote);
         intent.putExtra("visitorQuote",formattedvisitorTeamQuote);
@@ -276,20 +209,109 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        /**
+         * Cancel possible pending requests when switching view
+         */
+        client.cancelRequests(context,true);
+
         String selection = (String) parent.getItemAtPosition(pos);
-        if(selection.equals("Weather")){
-            if(linearLayout.getChildAt(1)!=null){
-                linearLayout.removeViews(1,4);
+        if(linearLayout.getChildAt(1).getId()!=R.id.loadingConstraint){
+            if(linearLayout.getChildCount()>1){
+                linearLayout.removeViews(1,linearLayout.getChildCount()-1);
             }
+            linearLayout.addView(progress);
+        }
+        if(selection.equals("Weather")){
             getMatchesWithWeather(context);
         } else {
-            linearLayout.removeViews(1,4);
             getMatchesWithBet(context);
         }
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
+        //NOT USED
+    }
 
+    public Button createButtonWithWeather(MatchWithWeather m){
+        /**
+         * Creation of button
+         */
+        Button btnTag = new Button(context);
+        try {
+            /**
+             * Setup of button layout parameters
+             */
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            btnTag.setLayoutParams(params);
+
+            /**
+             * Setup of button text and other options
+             */
+            String buttonText = m.getLocalTeam().getName() +
+                    " " + m.getLocalTeamScore() +
+                    " - " + m.getVisitorTeamScore() +
+                    " " + m.getVisitorTeam().getName() +
+                    "\n " + m.getCity() + " - " + m.getWeather() + ", " + m.getTemperature() + "°C";
+            btnTag.setText(buttonText);
+            btnTag.setLineSpacing(50, 1);
+            btnTag.setPadding(50, 80, 50, 80);
+            btnTag.setOnClickListener(v -> openMatchWithWeather(m));
+
+            /**
+             * Setup of image inside button
+             */
+            String imgName = m.getWeather().toLowerCase().replace(" ", "");
+            Uri uri = Uri.parse("android.resource://com.example.soseapp/drawable/" + imgName);
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            Drawable myImage = Drawable.createFromStream(inputStream, uri.toString());
+            Bitmap bitmap = ((BitmapDrawable) myImage).getBitmap();
+            Drawable resizableImg = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 150, 150, true));
+            btnTag.setCompoundDrawablesWithIntrinsicBounds(null, null, resizableImg, null);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return btnTag;
+    }
+
+    public Button createButtonWithBet(MatchWithBet m){
+        /**
+         * Creation of button
+         */
+        Button btnTag = new Button(context);
+        try {
+            /**
+             * Setup of button layout parameters
+             */
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            btnTag.setLayoutParams(params);
+
+            /**
+             * Formatting of quote strings
+             */
+            DecimalFormat dfor = new DecimalFormat("#.##");
+            dfor.setRoundingMode(RoundingMode.DOWN);
+            String formattedlocalTeamQuote = dfor.format(m.getLocalTeamQuote());
+            String formattedvisitorTeamQuote = dfor.format(m.getVisitorTeamQuote());
+
+            /**
+             * Setup of button text and other options
+             */
+            String buttonText = m.getLocalTeam().getName() +
+                                " " + m.getLocalTeamScore() +
+                                " - " + m.getVisitorTeamScore() +
+                                " " + m.getVisitorTeam().getName() +
+                                "\n Home Team: " + formattedlocalTeamQuote +
+                                " - Away Team: " + formattedvisitorTeamQuote;
+            btnTag.setText(buttonText);
+            btnTag.setLineSpacing(50, 1);
+            btnTag.setPadding(50, 80, 50, 80);
+            btnTag.setOnClickListener(v -> openMatchWithBet(m));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return btnTag;
     }
 }
