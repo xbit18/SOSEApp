@@ -24,7 +24,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-public class WeatherMatch extends AppCompatActivity implements OnMapReadyCallback {
+public class WeatherMatchActivity extends AppCompatActivity implements OnMapReadyCallback {
     Double lat = 0.0;
     Double lng = 0.0;
     String link = "";
@@ -62,15 +62,13 @@ public class WeatherMatch extends AppCompatActivity implements OnMapReadyCallbac
         // Capture the layout's TextView and set the string as its text
         TextView gameDet = findViewById(R.id.gameDet);
         gameDet.setText(gameDets);
-        TextView weatherDet = findViewById(R.id.localQuote);
+        TextView weatherDet = findViewById(R.id.weatherDets);
         weatherDet.setText(weatherDets);
-        TextView weatherCityText = findViewById(R.id.quoteTeam);
+        TextView weatherCityText = findViewById(R.id.city);
         weatherCityText.setText(weatherCity);
         link = "http://www.google.com/search?q=weather%20" + weatherCity;
-        TextView seeGoogle = findViewById(R.id.weatherSite);
+        TextView seeGoogle = findViewById(R.id.seeOnGoogle);
         seeGoogle.setPaintFlags(seeGoogle.getPaintFlags() |   Paint.UNDERLINE_TEXT_FLAG);
-
-
     }
 
     @Override

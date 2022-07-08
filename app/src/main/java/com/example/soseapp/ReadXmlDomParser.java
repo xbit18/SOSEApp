@@ -39,9 +39,9 @@ public class ReadXmlDomParser {
                 String visitorTeamName = matchNode.getChildNodes().item(3).getChildNodes().item(1).getTextContent();
                 int visitorTeamScore = Integer.parseInt(matchNode.getChildNodes().item(4).getChildNodes().item(0).getTextContent());
                 Element weatherNode = (Element) element.getChildNodes().item(2);
-                String city = weatherNode.getChildNodes().item(0).getTextContent();
-                float temperature = Float.parseFloat(weatherNode.getChildNodes().item(1).getTextContent());
-                String weather = weatherNode.getChildNodes().item(2).getTextContent();
+                String city = weatherNode.getChildNodes().item(1).getTextContent();
+                float temperature = Float.parseFloat(weatherNode.getChildNodes().item(2).getTextContent());
+                String weather = weatherNode.getChildNodes().item(0).getTextContent();
                 Team localTeam = new Team(localTeamID, localTeamName);
                 Team visitorsTeam = new Team(visitorTeamID, visitorTeamName);
                 MatchWithWeather match = new MatchWithWeather(localTeam,visitorsTeam,localTeamScore,visitorTeamScore,coordinates,city,temperature,weather);
@@ -84,6 +84,48 @@ public class ReadXmlDomParser {
         return matches;
 
     }
+    public static ArrayList<CompleteMatch> parseCompleteMatch(Document doc) {
 
+        // get <staff>
+        NodeList matchesList = doc.getElementsByTagName("CompleteMatch");
+        ArrayList<CompleteMatch> matches = new ArrayList<>();
+        for (int temp = 0; temp < matchesList.getLength(); temp++) {
+
+            Node node = matchesList.item(temp);
+
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+
+                Element element = (Element) node;
+
+                Element betNode = (Element) element.getChildNodes().item(0);
+                    Double localTeamQuote = Double.parseDouble(betNode.getChildNodes().item(0).getTextContent());
+                    Double tieQuote = Double.parseDouble(betNode.getChildNodes().item(1).getTextContent());
+                    Double visitorTeamQuote = Double.parseDouble(betNode.getChildNodes().item(2).getTextContent());
+
+                Element matchNode = (Element) element.getChildNodes().item(1);
+                    String coordinates = matchNode.getChildNodes().item(0).getTextContent();
+
+                    int localScore = Integer.parseInt(matchNode.getChildNodes().item(1).getTextContent());
+                    int localTeamID = Integer.parseInt(matchNode.getChildNodes().item(2).getChildNodes().item(0).getTextContent());
+                    String localTeamName = matchNode.getChildNodes().item(2).getChildNodes().item(1).getTextContent();
+
+                    int visitorScore = Integer.parseInt(matchNode.getChildNodes().item(3).getTextContent());
+                    int visitorTeamID = Integer.parseInt(matchNode.getChildNodes().item(4).getChildNodes().item(0).getTextContent());
+                    String visitorTeamName = matchNode.getChildNodes().item(4).getChildNodes().item(1).getTextContent();
+
+                Element weatherNode = (Element) element.getChildNodes().item(2);
+                    String weather = weatherNode.getChildNodes().item(0).getTextContent();
+                    String city = weatherNode.getChildNodes().item(1).getTextContent();
+                    Double temperature = Double.parseDouble(weatherNode.getChildNodes().item(2).getTextContent());
+
+                Team localTeam = new Team(localTeamID, localTeamName);
+                Team visitorsTeam = new Team(visitorTeamID, visitorTeamName);
+                CompleteMatch match = new CompleteMatch(localTeam,visitorsTeam,localScore,visitorScore,localTeamQuote,visitorTeamQuote,tieQuote,coordinates,city,temperature,weather);
+                matches.add(match);
+            }
+        }
+        return matches;
+
+    }
 }
 

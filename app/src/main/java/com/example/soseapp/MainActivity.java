@@ -2,49 +2,32 @@ package com.example.soseapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
-
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.StrictMode;
-import android.view.ContextThemeWrapper;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.ToggleButton;
-
-import com.google.android.material.button.MaterialButton;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.RoundingMode;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.io.StringReader;
 import cz.msebera.android.httpclient.Header;
 import org.w3c.dom.Document;
-
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.InputSource;
@@ -54,10 +37,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private static AsyncHttpClient client = new AsyncHttpClient();
     ArrayList<MatchWithWeather> matchesWithWeather = new ArrayList<>();
     ArrayList<MatchWithBet> matchesWithBets = new ArrayList<>();
+    ArrayList<CompleteMatch> completeMatches = new ArrayList<>();
     LinearLayout linearLayout;
     ConstraintLayout progress;
     Context context = this;
-    static int idCounter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         /**
          * Making request to server
          */
-        client.get(context,"http://192.168.1.152:8083/cities/get", new AsyncHttpResponseHandler() {
+        client.get(context,"http://192.168.1.152:8083/football-weather/matches-with-weather", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 ConstraintLayout loading = findViewById(R.id.loadingConstraint);
@@ -101,7 +84,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(data)));
                     doc.getDocumentElement().normalize();
                     matchesWithWeather = ReadXmlDomParser.parseMatchWithWeather(doc);
-
                     /**
                      * Dynamically creating buttons for every match
                      */
@@ -130,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }).setTag("request");
     }
     public void getMatchesWithBet(Context context){
-        client.get(context,"http://192.168.1.152:8084/matches-with-bets/get", new AsyncHttpResponseHandler() {
+        client.get(context,"http://192.168.1.152:8084/matches-with-bets", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 int children = linearLayout.getChildCount();
@@ -176,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void openMatchWithWeather(MatchWithWeather m) {
-        Intent intent = new Intent(this, WeatherMatch.class);
+        Intent intent = new Intent(this, WeatherMatchActivity.class);
         String gameDets = m.getLocalTeam().getName() + " " + m.getLocalTeamScore() + " - " + m.getVisitorTeamScore() + "  " + m.getVisitorTeam().getName();
         String weatherDets = m.getWeather() + ", " + m.getTemperature() + "°C";
         String weatherCity = m.getCity();
@@ -190,8 +172,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         startActivity(intent);
     }
 
+    public void openSingleMatch(Match m){
+        Intent intent = new Intent(this, SingleMatchPageActivity.class);
+        String teamName = m.getLocalTeam().getName();
+        intent.putExtra("teamName",teamName);
+        startActivity(intent);
+    }
+
     public void openMatchWithBet(MatchWithBet m) {
-        Intent intent = new Intent(this, BetsMatch.class);
+        Intent intent = new Intent(this, BetsMatchActivity.class);
         String gameDets = m.getLocalTeam().getName() + " " + m.getLocalTeamScore() + " - " + m.getVisitorTeamScore() + "  " + m.getVisitorTeam().getName();
         String coordinates = m.getCoordinates();
         DecimalFormat dfor = new DecimalFormat("#.##");
@@ -256,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             btnTag.setText(buttonText);
             btnTag.setLineSpacing(50, 1);
             btnTag.setPadding(50, 80, 50, 80);
-            btnTag.setOnClickListener(v -> openMatchWithWeather(m));
+            btnTag.setOnClickListener(v -> openSingleMatch(m));
 
             /**
              * Setup of image inside button
@@ -308,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             btnTag.setText(buttonText);
             btnTag.setLineSpacing(50, 1);
             btnTag.setPadding(50, 80, 50, 80);
-            btnTag.setOnClickListener(v -> openMatchWithBet(m));
+            btnTag.setOnClickListener(v -> openSingleMatch(m));
         } catch (Exception e) {
             e.printStackTrace();
         }

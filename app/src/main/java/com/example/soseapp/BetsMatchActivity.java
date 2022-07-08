@@ -4,14 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -21,10 +14,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-
-public class BetsMatch extends AppCompatActivity implements OnMapReadyCallback {
+public class BetsMatchActivity extends AppCompatActivity implements OnMapReadyCallback {
     Double lat = 0.0;
     Double lng = 0.0;
     String link = "";
@@ -50,7 +40,7 @@ public class BetsMatch extends AppCompatActivity implements OnMapReadyCallback {
         // Capture the layout's TextView and set the string as its text
         TextView gameDet = findViewById(R.id.gameDet);
         gameDet.setText(gameDets);
-        TextView localQuote = findViewById(R.id.localQuote);
+        TextView localQuote = findViewById(R.id.weatherDets);
         localQuote.setText(localQuoteExtra);
         TextView tieQuote = findViewById(R.id.tieQuote);
         tieQuote.setText(tieQuoteExtra);

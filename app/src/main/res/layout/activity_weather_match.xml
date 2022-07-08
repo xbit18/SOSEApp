@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".WeatherMatch">
+    tools:context=".WeatherMatchActivity">
 
     <TextView
         android:id="@+id/gameDet"
@@ -69,31 +69,31 @@
         app:layout_constraintTop_toBottomOf="@+id/gameDet">
 
         <TextView
-            android:id="@+id/quoteTeam"
+            android:id="@+id/city"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="21dp"
             android:text="TextView"
             android:textColor="#000000"
             android:textSize="25sp"
-            app:layout_constraintBottom_toTopOf="@+id/localQuote"
+            app:layout_constraintBottom_toTopOf="@+id/weatherDets"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/localQuote"
+            android:id="@+id/weatherDets"
             android:layout_width="wrap_content"
             android:layout_height="27dp"
             android:layout_marginBottom="1dp"
             android:text="TextView"
             android:textColor="#808080"
             android:textSize="20sp"
-            app:layout_constraintBottom_toTopOf="@+id/weatherSite"
+            app:layout_constraintBottom_toTopOf="@+id/seeOnGoogle"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/quoteTeam" />
+            app:layout_constraintTop_toBottomOf="@+id/city" />
 
         <TextView
-            android:id="@+id/weatherSite"
+            android:id="@+id/seeOnGoogle"
             android:layout_width="wrap_content"
             android:layout_height="22dp"
             android:layout_marginBottom="22dp"
@@ -104,7 +104,7 @@
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/localQuote" />
+            app:layout_constraintTop_toBottomOf="@+id/weatherDets" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,257 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/base"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".WeatherMatchActivity">
+
+    <TextView
+        android:id="@+id/gameDet"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/rounded_corner"
+        android:paddingLeft="20sp"
+        android:paddingTop="24sp"
+        android:paddingRight="20sp"
+        android:paddingBottom="24sp"
+        android:text="TextView"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="#000000"
+        android:textSize="26sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/city"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TextView"
+            android:textColor="#000000"
+            android:textSize="25sp"
+            app:layout_constraintStart_toStartOf="@+id/weatherDets"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/weatherDets"
+            android:layout_width="wrap_content"
+            android:layout_height="27dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="TextView"
+            android:textColor="#808080"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toTopOf="@+id/seeOnGoogle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/city" />
+
+        <TextView
+            android:id="@+id/seeOnGoogle"
+            android:layout_width="wrap_content"
+            android:layout_height="22dp"
+            android:clickable="true"
+            android:onClick="openLink"
+            android:text="See weather on Google"
+            android:textColor="#00BCD4"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/weatherDets" />
+
+        <ImageView
+            android:id="@+id/weatherImg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
+            android:scaleX="2"
+            android:scaleY="2"
+            app:layout_constraintBottom_toBottomOf="@+id/weatherDets"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/city"
+            app:srcCompat="@drawable/clear" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/rounded_corner"
+        android:padding="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView7">
+
+        <TextView
+            android:id="@+id/localTeam"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Wins"
+            android:textColor="#000000"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toTopOf="@+id/textView5"
+            app:layout_constraintStart_toStartOf="@+id/textView5"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/visitorTeam"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Wins"
+            android:textColor="#000000"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/textView5"
+            app:layout_constraintTop_toBottomOf="@+id/textView5" />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tie"
+            android:textColor="#000000"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/quote1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TextView"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toBottomOf="@+id/localTeam"
+            app:layout_constraintEnd_toEndOf="@+id/quotex"
+            app:layout_constraintTop_toTopOf="@+id/localTeam" />
+
+        <TextView
+            android:id="@+id/quotex"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TextView"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toBottomOf="@+id/textView5"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textView5" />
+
+        <TextView
+            android:id="@+id/quote2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TextView"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toBottomOf="@+id/visitorTeam"
+            app:layout_constraintEnd_toEndOf="@+id/quotex"
+            app:layout_constraintTop_toTopOf="@+id/visitorTeam" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintBottom_toTopOf="@+id/textView8"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout3" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="32dp"
+        android:text="Live Result:"
+        android:textColor="#000000"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:text="Live Odds:"
+        android:textColor="#000000"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider2" />
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginBottom="20dp"
+        android:text="Live Weather:"
+        android:textColor="#000000"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="32dp"
+        android:clickable="true"
+        android:insetTop="0sp"
+        android:insetBottom="0sp"
+        android:onClick="openGoogle"
+        android:text="See on Google Maps"
+        android:textAllCaps="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:typeface="sans"
+        app:backgroundTint="@color/secondary_dark_cyan"
+        app:cornerRadius="15sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gameDet" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,9 +8,13 @@
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/rounded_corner.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_bets_match.xml" value="0.3376429239908854" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.33940774487471526" />
-        <entry key="app/src/main/res/layout/activity_weather_match.xml" value="0.3635850824861444" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.2126922607421875" />
+        <entry key="app/src/main/res/layout/activity_maps.xml" value="0.24322916666666666" />
+        <entry key="app/src/main/res/layout/activity_single_match_page.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_weather_match.xml" value="0.3580810155623999" />
         <entry key="app/src/main/res/layout/button_style.xml" value="0.24322916666666666" />
+        <entry key="app/src/main/res/layout/loading_screen.xml" value="0.2605789184570313" />
+        <entry key="app/src/main/res/layout/singlematch_layout.xml" value="0.26137237548828124" />
         <entry key="app/src/main/res/layout/spinner_item.xml" value="0.2421875" />
         <entry key="app/src/main/res/xml/button_style.xml" value="0.24322916666666666" />
       </map>
