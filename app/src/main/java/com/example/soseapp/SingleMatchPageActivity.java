@@ -47,16 +47,20 @@ public class SingleMatchPageActivity extends AppCompatActivity {
     String link = "";
     LinearLayout layout = null;
     ConstraintLayout layoutCopy = null;
-    ProgressBar loading = null;
+    ConstraintLayout loading = null;
     CompleteMatch match = null;
+    ConstraintLayout textLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_match_page);
         layout = findViewById(R.id.mainLayout);
         LayoutInflater inflater = LayoutInflater.from(context);
-        ConstraintLayout loading = (ConstraintLayout) inflater.inflate(R.layout.loading_screen, null, false);
+        loading = (ConstraintLayout) inflater.inflate(R.layout.loading_screen, null, false);
         loading.setLayoutParams(new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT,ConstraintLayout.LayoutParams.MATCH_PARENT));
+
+        textLayout = (ConstraintLayout) inflater.inflate(R.layout.centered_textview, null, false);
+        textLayout.setLayoutParams(new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT,ConstraintLayout.LayoutParams.MATCH_PARENT));
         layout.addView(loading);
         Intent intent = getIntent();
         String teamName = intent.getStringExtra("teamName");
@@ -66,6 +70,7 @@ public class SingleMatchPageActivity extends AppCompatActivity {
     }
 
     public void getCompleteMatches(Context context, String teamName){
+        client.setMaxRetriesAndTimeout(2,1000);
         client.get(context,"http://192.168.1.152:8086/aggregator/get-complete-matches", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -144,11 +149,8 @@ public class SingleMatchPageActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                ProgressBar progress = findViewById(R.id.progressBar2);
-                ConstraintLayout loading = findViewById(R.id.loadingConstraint);
-                loading.removeView(progress);
-                TextView errorMessage = findViewById(R.id.textView2);
-                errorMessage.setText("Sorry, something went wrong. Try again later!");
+                layout.removeView(loading);
+                layout.addView(textLayout);
             }
         }).setTag("request");
 

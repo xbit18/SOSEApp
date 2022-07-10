@@ -127,5 +127,19 @@ public class ReadXmlDomParser {
         return matches;
 
     }
+
+    public static Weather parseWeather(Document doc) {
+        Node weatherNode = (doc.getElementsByTagName("Weather")).item(0);
+        Weather weather = null;
+        if (weatherNode.getNodeType() == Node.ELEMENT_NODE){
+            Element element = (Element) weatherNode;
+            String condition = element.getChildNodes().item(0).getTextContent();
+            String city = element.getChildNodes().item(1).getTextContent();
+            Double temperature = Double.parseDouble(element.getChildNodes().item(2).getTextContent());
+
+            weather = new Weather(condition,temperature,city);
+        }
+        return weather;
+    }
 }
 

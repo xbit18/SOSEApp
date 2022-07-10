@@ -2,6 +2,8 @@ package com.example.soseapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,14 +11,22 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputLayout;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import java.io.FileNotFoundException;
@@ -38,9 +48,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     ArrayList<MatchWithWeather> matchesWithWeather = new ArrayList<>();
     ArrayList<MatchWithBet> matchesWithBets = new ArrayList<>();
     ArrayList<CompleteMatch> completeMatches = new ArrayList<>();
+    private LayoutInflater inflater = null;
     LinearLayout linearLayout;
-    ConstraintLayout progress;
+    LinearLayout buttonLayout;
+    ConstraintLayout progressButtonContainer;
+    ProgressBar progress;
     Context context = this;
+    ConstraintLayout textLayout;
+    TextInputLayout focused;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +66,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         linearLayout = findViewById(R.id.mainLayout);
-        progress = findViewById(R.id.loadingConstraint);
+        focused = findViewById(R.id.outlinedTextField);
+        linearLayout.setOnClickListener(v->focused.clearFocus());
+        inflater = LayoutInflater.from(context);
 
         /**
          * Setup of spinner element on top of page
@@ -62,21 +79,45 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
+
+        System.out.println("Child count after adding searchLayout " + linearLayout.getChildCount());
+        int count = linearLayout.getChildCount();
+        for(int i = 0; i<count; i++){
+            System.out.println(linearLayout.getChildAt(i).getClass().getName());
+        }
+        textLayout = (ConstraintLayout) inflater.inflate(R.layout.centered_textview, null, false);
+        textLayout.setLayoutParams(new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT,ConstraintLayout.LayoutParams.MATCH_PARENT));
+        buttonLayout = findViewById(R.id.buttonLayout);
+        progressButtonContainer = findViewById(R.id.progressButtonContainer);
+        progress = findViewById(R.id.progressBar);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options_menu, menu);
+
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+
+        return true;
     }
 
     public void getMatchesWithWeather(Context context){
         /**
          * Making request to server
          */
+        client.setMaxRetriesAndTimeout(2,1000);
         client.get(context,"http://192.168.1.152:8083/football-weather/matches-with-weather", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                ConstraintLayout loading = findViewById(R.id.loadingConstraint);
-                int children = linearLayout.getChildCount();
-                if(children>1){
-                    linearLayout.removeView(loading);
-                }
                 try {
+                    progressButtonContainer.removeView(progress);
                     String data = new String(responseBody);
                     /**
                      * Parsing xml response
@@ -87,10 +128,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     /**
                      * Dynamically creating buttons for every match
                      */
-                    for (MatchWithWeather m : matchesWithWeather) {
-                        Button button = createButtonWithWeather(m);
-                        linearLayout.addView(button);
+                    if(matchesWithWeather.isEmpty()){
+                        progressButtonContainer.addView(textLayout);
+                    }else{
+                        for (MatchWithWeather m : matchesWithWeather) {
+                            Button button = createButtonWithWeather(m);
+                            buttonLayout.addView(button);
+                        }
                     }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (SAXException e) {
@@ -103,11 +149,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                ProgressBar progress = findViewById(R.id.progressBar2);
-                ConstraintLayout loading = findViewById(R.id.loadingConstraint);
-                loading.removeView(progress);
-                TextView errorMessage = findViewById(R.id.textView2);
-                errorMessage.setText("Sorry, something went wrong. Try again later!");
+                progressButtonContainer.removeView(progress);
+                progressButtonContainer.addView(textLayout);
             }
         }).setTag("request");
     }
@@ -115,11 +158,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         client.get(context,"http://192.168.1.152:8084/matches-with-bets", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                int children = linearLayout.getChildCount();
-                if(children>1){
-                    linearLayout.removeView(progress);
-                }
                 try {
+                    progressButtonContainer.removeView(progress);
+
                     String data = new String(responseBody);
                     /**
                      * Parsing xml response
@@ -132,9 +173,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                      * Dynamically creating buttons for every match
                      */
                     int idCounter = 0;
-                    for (MatchWithBet m : matchesWithBets) {
-                        Button button = createButtonWithBet(m);
-                        linearLayout.addView(button);
+                    if(matchesWithBets.isEmpty()){
+                        progressButtonContainer.addView(textLayout);
+                    }else {
+                        for (MatchWithBet m : matchesWithBets) {
+                            Button button = createButtonWithBet(m);
+                            buttonLayout.addView(button);
+                        }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -148,51 +193,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                ProgressBar progress = findViewById(R.id.progressBar2);
-                ConstraintLayout loading = findViewById(R.id.loadingConstraint);
-                loading.removeView(progress);
-                TextView errorMessage = findViewById(R.id.textView2);
-                errorMessage.setText("Sorry, something went wrong. Try again later!");
+                progressButtonContainer.removeView(progress);
+                progressButtonContainer.addView(textLayout);
             }
         }).setTag("request");
-    }
-
-    public void openMatchWithWeather(MatchWithWeather m) {
-        Intent intent = new Intent(this, WeatherMatchActivity.class);
-        String gameDets = m.getLocalTeam().getName() + " " + m.getLocalTeamScore() + " - " + m.getVisitorTeamScore() + "  " + m.getVisitorTeam().getName();
-        String weatherDets = m.getWeather() + ", " + m.getTemperature() + "°C";
-        String weatherCity = m.getCity();
-        String coordinates = m.getCoordinates();
-        String imgName = m.getWeather().toLowerCase().replace(" ", "");
-        intent.putExtra("Gamedets",gameDets);
-        intent.putExtra("Weatherdets",weatherDets);
-        intent.putExtra("Weathercity", weatherCity);
-        intent.putExtra("Coordinates",coordinates);
-        intent.putExtra("imgPath", imgName);
-        startActivity(intent);
     }
 
     public void openSingleMatch(Match m){
         Intent intent = new Intent(this, SingleMatchPageActivity.class);
         String teamName = m.getLocalTeam().getName();
         intent.putExtra("teamName",teamName);
-        startActivity(intent);
-    }
-
-    public void openMatchWithBet(MatchWithBet m) {
-        Intent intent = new Intent(this, BetsMatchActivity.class);
-        String gameDets = m.getLocalTeam().getName() + " " + m.getLocalTeamScore() + " - " + m.getVisitorTeamScore() + "  " + m.getVisitorTeam().getName();
-        String coordinates = m.getCoordinates();
-        DecimalFormat dfor = new DecimalFormat("#.##");
-        dfor.setRoundingMode(RoundingMode.DOWN);
-        String formattedlocalTeamQuote = dfor.format(m.getLocalTeamQuote());
-        String formattedvisitorTeamQuote = dfor.format(m.getVisitorTeamQuote());
-        String formattedtieQuote = dfor.format(m.getTieQuote());
-        intent.putExtra("Gamedets",gameDets);
-        intent.putExtra("localQuote",formattedlocalTeamQuote);
-        intent.putExtra("tieQuote",formattedtieQuote);
-        intent.putExtra("visitorQuote",formattedvisitorTeamQuote);
-        intent.putExtra("Coordinates",coordinates);
         startActivity(intent);
     }
 
@@ -204,12 +214,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         client.cancelRequests(context,true);
 
         String selection = (String) parent.getItemAtPosition(pos);
-        if(linearLayout.getChildAt(1).getId()!=R.id.loadingConstraint){
-            if(linearLayout.getChildCount()>1){
-                linearLayout.removeViews(1,linearLayout.getChildCount()-1);
-            }
-            linearLayout.addView(progress);
+        if(!(progressButtonContainer.getChildAt(0) instanceof ProgressBar)){
+            progressButtonContainer.removeView(textLayout);
+            progressButtonContainer.addView(progress,0);
         }
+        if(buttonLayout.getChildCount()>0){
+            buttonLayout.removeAllViews();
+            }
         if(selection.equals("Weather")){
             getMatchesWithWeather(context);
         } else {
@@ -302,5 +313,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             e.printStackTrace();
         }
         return btnTag;
+    }
+
+    public void openWeatherByMatch(View view){
+        TextInputLayout inputText = findViewById(R.id.outlinedTextField);
+        String value = inputText.getEditText().getText().toString();
+        Intent intent = new Intent(this, WeatherByMatch.class);
+        intent.putExtra("query", value);
+        startActivity(intent);
     }
 }
