@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/baseLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".WeatherByMatch">
@@ -15,8 +16,7 @@
         app:layout_constraintBottom_toTopOf="@+id/constraintLayout2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/gameDet"
-        app:srcCompat="@drawable/clear" />
+        app:layout_constraintTop_toBottomOf="@+id/gameDet" />
 
     <TextView
         android:id="@+id/gameDet"
@@ -30,7 +30,6 @@
         android:paddingTop="40sp"
         android:paddingRight="15sp"
         android:paddingBottom="40sp"
-        android:text="TextView"
         android:textAlignment="center"
         android:textAllCaps="false"
         android:textColor="#000000"
@@ -70,7 +69,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:layout_marginBottom="32dp"
-            android:text="TextView"
             android:textColor="#575757"
             android:textSize="25sp"
             app:layout_constraintBottom_toTopOf="@+id/tempDet"
@@ -81,7 +79,6 @@
             android:id="@+id/tempDet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView"
             android:textColor="#575757"
             android:textSize="25sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -127,7 +124,6 @@
             android:id="@+id/cityDet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView"
             android:textColor="#575757"
             android:textSize="25sp"
             app:layout_constraintEnd_toEndOf="@+id/conditionDet"

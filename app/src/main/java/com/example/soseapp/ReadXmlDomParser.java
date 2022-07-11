@@ -133,11 +133,13 @@ public class ReadXmlDomParser {
         Weather weather = null;
         if (weatherNode.getNodeType() == Node.ELEMENT_NODE){
             Element element = (Element) weatherNode;
-            String condition = element.getChildNodes().item(0).getTextContent();
-            String city = element.getChildNodes().item(1).getTextContent();
-            Double temperature = Double.parseDouble(element.getChildNodes().item(2).getTextContent());
+            if(weatherNode.getChildNodes().getLength()!=0){
+                String condition = element.getChildNodes().item(0).getTextContent();
+                String city = element.getChildNodes().item(1).getTextContent();
+                Double temperature = Double.parseDouble(element.getChildNodes().item(2).getTextContent());
 
-            weather = new Weather(condition,temperature,city);
+                weather = new Weather(condition,temperature,city);
+            }
         }
         return weather;
     }
