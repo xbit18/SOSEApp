@@ -66,6 +66,15 @@ CompleteMatch match = null;
     }
 
     public void getCompleteMatches(Context context, String teamName){
+        if(!(teamName.matches("[a-zA-Z]+"))){
+            layout.removeAllViews();
+            ConstraintLayout textLayout = (ConstraintLayout) inflater.inflate(R.layout.centered_textview, null, false);
+            textLayout.setLayoutParams(new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT,ConstraintLayout.LayoutParams.MATCH_PARENT));
+            TextView text = (TextView) textLayout.getViewById(R.id.errorMessage);
+            text.setText("Wrong Syntax! Type team name or \"Home team - Away team\" and try again!");
+            layout.addView(textLayout);
+            return;
+        }
         client.get(context,"http://192.168.1.152:8086/aggregator/get-complete-matches", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {

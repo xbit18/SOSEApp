@@ -6,7 +6,7 @@
     </string-array>
     <string name="title_activity_maps">MapsActivity</string>
     <string name="search_title">Search weather by match</string>
-    <string name="search_hint">Insert team name</string>
+    <string name="search_hint">Type team name or match</string>
     <string name="weather_hint">Inter - Milan</string>
     <string name="error_message">Something went wrong.\nPlease try again!</string>
 </resources>
