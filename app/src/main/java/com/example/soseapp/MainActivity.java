@@ -43,6 +43,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+//TODO Refactor and add comments to code
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private static AsyncHttpClient client = new AsyncHttpClient();
     ArrayList<MatchWithWeather> matchesWithWeather = new ArrayList<>();
