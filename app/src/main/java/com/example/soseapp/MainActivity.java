@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
          * Making request to server
          */
         client.setMaxRetriesAndTimeout(2,1000);
-        client.get(context,"http://192.168.1.152:8083/football-weather/matches-with-weather", new AsyncHttpResponseHandler() {
+        client.get(context,"http://192.168.0.126/football-weather/matches-with-weather", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 try {
@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }).setTag("request");
     }
     public void getMatchesWithBet(Context context){
-        client.get(context,"http://192.168.1.152:8084/matches-with-bets", new AsyncHttpResponseHandler() {
+        client.get(context,"http://192.168.0.126:8084/matches-with-bets", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 try {

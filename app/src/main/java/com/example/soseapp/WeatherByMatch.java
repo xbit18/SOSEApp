@@ -74,7 +74,7 @@ public class WeatherByMatch extends AppCompatActivity {
         RequestParams params = new RequestParams();
         params.add("localTeamName",localTeamCap);
         params.add("visitorTeamName",visitorTeamCap);
-        String uri = "http://192.168.1.152:8083/football-weather/weather-by-match";
+        String uri = "http://192.168.0.126:8085/football-weather/weather-by-match";
         System.out.println(visitorTeamCap + " " + localTeamCap);
         client.get(context,uri, params, new AsyncHttpResponseHandler() {
             @Override

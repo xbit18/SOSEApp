@@ -75,7 +75,7 @@ CompleteMatch match = null;
             layout.addView(textLayout);
             return;
         }
-        client.get(context,"http://192.168.1.152:8086/aggregator/get-complete-matches", new AsyncHttpResponseHandler() {
+        client.get(context,"http://192.168.0.126:8086/aggregator/get-complete-matches", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 System.out.println("Successful request");
