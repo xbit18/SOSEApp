@@ -45,31 +45,45 @@ import org.xml.sax.SAXException;
 
 //TODO Refactor and add comments to code
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+    /**
+     * Initialization of variables
+     */
     private static AsyncHttpClient client = new AsyncHttpClient();
-    ArrayList<MatchWithWeather> matchesWithWeather = new ArrayList<>();
-    ArrayList<MatchWithBet> matchesWithBets = new ArrayList<>();
-    ArrayList<CompleteMatch> completeMatches = new ArrayList<>();
+    private ArrayList<MatchWithWeather> matchesWithWeather = new ArrayList<>();
+    private ArrayList<MatchWithBet> matchesWithBets = new ArrayList<>();
     private LayoutInflater inflater = null;
-    LinearLayout linearLayout;
-    LinearLayout buttonLayout;
-    ConstraintLayout progressButtonContainer;
-    ProgressBar progress;
-    Context context = this;
-    ConstraintLayout textLayout;
-    TextInputLayout focused;
+    private LinearLayout linearLayout;
+    private LinearLayout buttonLayout;
+    private ConstraintLayout progressButtonContainer;
+    private ProgressBar progress;
+    private Context context = this;
+    private ConstraintLayout textLayout;
+    private TextInputLayout focused;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         /**
-         * normal setup operations
+         * Normal setup operations
          */
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         linearLayout = findViewById(R.id.mainLayout);
         focused = findViewById(R.id.outlinedTextField);
-        linearLayout.setOnClickListener(v->focused.clearFocus());
         inflater = LayoutInflater.from(context);
+        buttonLayout = findViewById(R.id.buttonLayout);
+        progressButtonContainer = findViewById(R.id.progressButtonContainer);
+        progress = findViewById(R.id.progressBar);
+
+        /**
+         * Setup of centered textview layout
+         */
+        textLayout = (ConstraintLayout) inflater.inflate(R.layout.centered_textview, null, false);
+        textLayout.setLayoutParams(new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT,ConstraintLayout.LayoutParams.MATCH_PARENT));
+
+        /**
+         * Fix for bug of text input
+         */
+        linearLayout.setOnClickListener(v->focused.clearFocus());
 
         /**
          * Setup of spinner element on top of page
@@ -80,41 +94,63 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
-
-        System.out.println("Child count after adding searchLayout " + linearLayout.getChildCount());
-        int count = linearLayout.getChildCount();
-        for(int i = 0; i<count; i++){
-            System.out.println(linearLayout.getChildAt(i).getClass().getName());
-        }
-        textLayout = (ConstraintLayout) inflater.inflate(R.layout.centered_textview, null, false);
-        textLayout.setLayoutParams(new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT,ConstraintLayout.LayoutParams.MATCH_PARENT));
-        buttonLayout = findViewById(R.id.buttonLayout);
-        progressButtonContainer = findViewById(R.id.progressButtonContainer);
-        progress = findViewById(R.id.progressBar);
     }
 
+    /**
+     * Setup for search on nav bar
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.options_menu, menu);
-
-        // Associate searchable configuration with the SearchView
         SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView =
                 (SearchView) menu.findItem(R.id.search).getActionView();
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getComponentName()));
-
         return true;
     }
 
+    /**
+     * Listener for weather or bets selector, calls getMatchesWithWeather or getMatchesWithBets
+     */
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        /**
+         * Cancel possible pending requests when switching view
+         */
+        client.cancelRequests(context,true);
+
+        String selection = (String) parent.getItemAtPosition(pos);
+        if(!(progressButtonContainer.getChildAt(0) instanceof ProgressBar)){
+            progressButtonContainer.removeView(textLayout);
+            progressButtonContainer.addView(progress,0);
+        }
+        if(buttonLayout.getChildCount()>0){
+            buttonLayout.removeAllViews();
+        }
+        if(selection.equals("Weather")){
+            getMatchesWithWeather(context);
+        } else {
+            getMatchesWithBet(context);
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+        //NOT USED
+    }
+
+    /**
+     * Makes request to football-weather-prosumer
+     */
     public void getMatchesWithWeather(Context context){
         /**
          * Making request to server
          */
         client.setMaxRetriesAndTimeout(2,1000);
-        client.get(context,"http://192.168.0.126/football-weather/matches-with-weather", new AsyncHttpResponseHandler() {
+        client.get(context,"http://10.0.2.2/football-weather/matches-with-weather", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 try {
@@ -127,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     doc.getDocumentElement().normalize();
                     matchesWithWeather = ReadXmlDomParser.parseMatchWithWeather(doc);
                     /**
-                     * Dynamically creating buttons for every match
+                     * Dynamically creating buttons for every match and adding them to layout
                      */
                     if(matchesWithWeather.isEmpty()){
                         progressButtonContainer.addView(textLayout);
@@ -137,7 +173,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             buttonLayout.addView(button);
                         }
                     }
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (SAXException e) {
@@ -155,8 +190,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         }).setTag("request");
     }
+
+    /**
+     * Makes request to football-bets-prosumer
+     */
     public void getMatchesWithBet(Context context){
-        client.get(context,"http://192.168.0.126:8084/matches-with-bets", new AsyncHttpResponseHandler() {
+        client.get(context,"http://10.0.2.2:8084/matches-with-bets", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 try {
@@ -171,9 +210,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     matchesWithBets = ReadXmlDomParser.parseMatchWithBet(doc);
 
                     /**
-                     * Dynamically creating buttons for every match
+                     * Dynamically creating buttons for every match adding them to layout
                      */
-                    int idCounter = 0;
                     if(matchesWithBets.isEmpty()){
                         progressButtonContainer.addView(textLayout);
                     }else {
@@ -200,40 +238,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }).setTag("request");
     }
 
-    public void openSingleMatch(Match m){
-        Intent intent = new Intent(this, SingleMatchPageActivity.class);
-        String teamName = m.getLocalTeam().getName();
-        intent.putExtra("teamName",teamName);
-        startActivity(intent);
-    }
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-        /**
-         * Cancel possible pending requests when switching view
-         */
-        client.cancelRequests(context,true);
-
-        String selection = (String) parent.getItemAtPosition(pos);
-        if(!(progressButtonContainer.getChildAt(0) instanceof ProgressBar)){
-            progressButtonContainer.removeView(textLayout);
-            progressButtonContainer.addView(progress,0);
-        }
-        if(buttonLayout.getChildCount()>0){
-            buttonLayout.removeAllViews();
-            }
-        if(selection.equals("Weather")){
-            getMatchesWithWeather(context);
-        } else {
-            getMatchesWithBet(context);
-        }
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
-        //NOT USED
-    }
-
+    /**
+     * Creates buttons with weather info
+     */
     public Button createButtonWithWeather(MatchWithWeather m){
         /**
          * Creation of button
@@ -277,6 +284,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return btnTag;
     }
 
+    /**
+     * Creates buttons with bets info
+     */
     public Button createButtonWithBet(MatchWithBet m){
         /**
          * Creation of button
@@ -301,11 +311,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
              * Setup of button text and other options
              */
             String buttonText = m.getLocalTeam().getName() +
-                                " " + m.getLocalTeamScore() +
-                                " - " + m.getVisitorTeamScore() +
-                                " " + m.getVisitorTeam().getName() +
-                                "\n Home Team: " + formattedlocalTeamQuote +
-                                " - Away Team: " + formattedvisitorTeamQuote;
+                    " " + m.getLocalTeamScore() +
+                    " - " + m.getVisitorTeamScore() +
+                    " " + m.getVisitorTeam().getName() +
+                    "\n Home Team: " + formattedlocalTeamQuote +
+                    " - Away Team: " + formattedvisitorTeamQuote;
             btnTag.setText(buttonText);
             btnTag.setLineSpacing(50, 1);
             btnTag.setPadding(50, 80, 50, 80);
@@ -316,6 +326,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return btnTag;
     }
 
+    /**
+     * Opens single match activity
+     */
+    public void openSingleMatch(Match m){
+        Intent intent = new Intent(this, SingleMatchPageActivity.class);
+        String localTeamName = m.getLocalTeam().getName();
+        String visitorTeamName = m.getVisitorTeam().getName();
+        intent.putExtra("localTeamName",localTeamName);
+        intent.putExtra("visitorTeamName",visitorTeamName);
+        startActivity(intent);
+    }
+
+    /**
+     * Opens search of weather by match
+     */
     public void openWeatherByMatch(View view){
         TextInputLayout inputText = findViewById(R.id.outlinedTextField);
         String value = inputText.getEditText().getText().toString();

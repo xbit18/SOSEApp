@@ -24,7 +24,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -52,6 +51,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
+        /**
+         * Setting up map with coordinates and zoom
+         */
         googleMap.getUiSettings().setCompassEnabled(true);
         googleMap.getUiSettings().setMyLocationButtonEnabled(true);
         LatLng cityCoords = new LatLng(lat, lng);
@@ -60,9 +62,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .title(city));
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(cityCoords,11));
     }
-
-    /*@Override
-    public void onPointerCaptureChanged(boolean hasCapture) {
-        super.onPointerCaptureChanged(hasCapture);
-    }*/
 }

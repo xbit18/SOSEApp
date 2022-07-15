@@ -37,6 +37,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import cz.msebera.android.httpclient.Header;
 
 public class WeatherByMatch extends AppCompatActivity {
+    /**
+     * Initialization of variables
+     */
     private static AsyncHttpClient client = new AsyncHttpClient();
     private Context context = this;
     private String link;
@@ -44,6 +47,9 @@ public class WeatherByMatch extends AppCompatActivity {
     private ConstraintLayout baseLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        /**
+         * Normal setup operations
+         */
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather_by_match);
         baseLayout = findViewById(R.id.baseLayout);
@@ -52,9 +58,16 @@ public class WeatherByMatch extends AppCompatActivity {
         getMatch();
     }
 
+    /**
+     * Gets match corresponding to search query
+     */
     public void getMatch(){
         Intent intent = getIntent();
         String query = intent.getStringExtra("query").replace(" ","");
+
+        /**
+         * Cheks syntax of search query
+         */
         if(!(query.contains("-"))){
             TextView gameDet = findViewById(R.id.gameDet);
             gameDet.setText("Wrong syntax! Type \"Home team - Away team\" and try again");
@@ -70,12 +83,19 @@ public class WeatherByMatch extends AppCompatActivity {
         String visitorTeam = strings[1];
         String s2 = visitorTeam.substring(0, 1).toUpperCase();
         String visitorTeamCap = s2 + visitorTeam.substring(1);
+
         client.setMaxRetriesAndTimeout(2,1000);
+        /**
+         * Setup of request
+         */
         RequestParams params = new RequestParams();
         params.add("localTeamName",localTeamCap);
         params.add("visitorTeamName",visitorTeamCap);
-        String uri = "http://192.168.0.126:8085/football-weather/weather-by-match";
-        System.out.println(visitorTeamCap + " " + localTeamCap);
+        String uri = "http://10.0.2.2:8085/football-weather/weather-by-match";
+
+        /**
+         * Sending request
+         */
         client.get(context,uri, params, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -89,6 +109,10 @@ public class WeatherByMatch extends AppCompatActivity {
                     Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(data)));
                     doc.getDocumentElement().normalize();
                     Weather weather = ReadXmlDomParser.parseWeather(doc);
+
+                    /**
+                     * If match found setup page
+                     */
                     if(weather != null) {
                         TextView gameDet = findViewById(R.id.gameDet);
                         gameDet.setText(localTeamCap + " - " + visitorTeamCap);
@@ -115,7 +139,11 @@ public class WeatherByMatch extends AppCompatActivity {
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         }
-                    } else {
+                    } else
+                        /**
+                        * If match not found
+                        */
+                        {
                         TextView gameDet = findViewById(R.id.gameDet);
                         gameDet.setText("Match not found");
                         ConstraintLayout inner = findViewById(R.id.constraintLayout2);
